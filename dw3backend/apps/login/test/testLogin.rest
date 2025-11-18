@@ -1,16 +1,16 @@
-### teste de login
+### Teste de login
 POST http://localhost:40000/Login HTTP/1.1
 content-type: application/json
 
 {
-"username": "qwe",
-"password": "qwe"
+    "username": "admin",
+    "password": "admin"
 }
 
-### teste de logout
+### Teste de logout
 POST http://localhost:40000/Logout HTTP/1.1
 content-type: application/json
 
 {
-
+    
 }

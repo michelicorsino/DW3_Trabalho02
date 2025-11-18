@@ -1,45 +1,171 @@
-### Get all cargos
-GET http://localhost:40000/getAllCargos HTTP/1.1
+### Configuração da URL base
+@baseURL = http://localhost:40000
+@token = seu_token_aqui
 
-### Get cargo by ID (precisa de token)
-POST http://localhost:40000/getCargoByID HTTP/1.1
-content-type: application/json
-Authorization: Bearer SEU_TOKEN_AQUI
+### ==================================================
+### TESTES CRUD - CARGOS
+### ==================================================
+
+### 1. GET ALL - Listar todos os cargos
+GET {{baseURL}}/getAllCargos HTTP/1.1
+Content-Type: application/json
+
+### 2. GET BY ID - Buscar cargo por ID
+POST {{baseURL}}/getCargoByID HTTP/1.1
+Content-Type: application/json
 
 {
     "cargoid": 1
 }
 
-### Insert cargo
-POST http://localhost:40000/insertCargo HTTP/1.1
-content-type: application/json
-Authorization: Bearer SEU_TOKEN_AQUI
+### 3. INSERT - Inserir novo cargo
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
 
 {
-    "codigo": "AUX",
-    "descricao": "Auxiliar Administrativo",
-    "salario_base": 2500.00,
+    "codigo": "DEV-001",
+    "descricao": "Desenvolvedor Júnior",
+    "salario_base": 3500.00,
     "ativo": true
 }
 
-### Update cargo
-POST http://localhost:40000/updateCargo HTTP/1.1
-content-type: application/json
-Authorization: Bearer SEU_TOKEN_AQUI
+### 4. INSERT - Outro exemplo
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
 
 {
-    "cargoid": 5,
-    "codigo": "AUX",
-    "descricao": "Auxiliar Administrativo Sênior",
-    "salario_base": 2800.00,
+    "codigo": "GER-001",
+    "descricao": "Gerente de Projetos",
+    "salario_base": 8500.00,
     "ativo": true
 }
 
-### Delete cargo
-POST http://localhost:40000/deleteCargo HTTP/1.1
-content-type: application/json
-Authorization: Bearer SEU_TOKEN_AQUI
+### 5. INSERT - Desenvolvedor Pleno
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
 
 {
-    "cargoid": 5
+    "codigo": "DEV-002",
+    "descricao": "Desenvolvedor Pleno",
+    "salario_base": 6000.00,
+    "ativo": true
 }
+
+### 6. UPDATE - Atualizar cargo existente
+POST {{baseURL}}/updateCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "cargoid": 1,
+    "codigo": "DEV-001",
+    "descricao": "Desenvolvedor Júnior - Atualizado",
+    "salario_base": 4000.00,
+    "ativo": true
+}
+
+### 7. UPDATE - Desativar cargo
+POST {{baseURL}}/updateCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "cargoid": 2,
+    "codigo": "GER-001",
+    "descricao": "Gerente de Projetos",
+    "salario_base": 8500.00,
+    "ativo": false
+}
+
+### 8. DELETE - Deletar cargo (soft delete)
+POST {{baseURL}}/deleteCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "cargoid": 3
+}
+
+### ==================================================
+### TESTES DE VALIDAÇÃO
+### ==================================================
+
+### 9. GET BY ID - Cargo inexistente
+POST {{baseURL}}/getCargoByID HTTP/1.1
+Content-Type: application/json
+
+{
+    "cargoid": 9999
+}
+
+### 10. INSERT - Teste com código duplicado (deve falhar)
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "codigo": "DEV-001",
+    "descricao": "Outro Desenvolvedor",
+    "salario_base": 3500.00,
+    "ativo": true
+}
+
+### 11. INSERT - Cargo com salário zero
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "codigo": "EST-001",
+    "descricao": "Estagiário",
+    "salario_base": 0.00,
+    "ativo": true
+}
+
+### 12. UPDATE - Atualizar cargo inexistente
+POST {{baseURL}}/updateCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "cargoid": 9999,
+    "codigo": "TST-001",
+    "descricao": "Teste",
+    "salario_base": 1000.00,
+    "ativo": true
+}
+
+### ==================================================
+### TESTES ADICIONAIS - CENÁRIOS DIVERSOS
+### ==================================================
+
+### 13. INSERT - Analista de Sistemas
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "codigo": "ANA-001",
+    "descricao": "Analista de Sistemas",
+    "salario_base": 5500.00,
+    "ativo": true
+}
+
+### 14. INSERT - Desenvolvedor Sênior
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "codigo": "DEV-003",
+    "descricao": "Desenvolvedor Sênior",
+    "salario_base": 9000.00,
+    "ativo": true
+}
+
+### 15. INSERT - Arquiteto de Software
+POST {{baseURL}}/insertCargo HTTP/1.1
+Content-Type: application/json
+
+{
+    "codigo": "ARQ-001",
+    "descricao": "Arquiteto de Software",
+    "salario_base": 12000.00,
+    "ativo": true
+}
+
+### 16. GET ALL - Verificar todos após inserções
+GET {{baseURL}}/getAllCargos HTTP/1.1
+Content-Type: application/json
