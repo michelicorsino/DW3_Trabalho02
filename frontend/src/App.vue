@@ -1,6 +1,6 @@
 <template>
   <v-app theme="dark">
-    
+    <!-- pegando -->
     <template v-if="showLayout">
       <v-navigation-drawer v-model="drawer" elevation="2">
         <v-list-item
