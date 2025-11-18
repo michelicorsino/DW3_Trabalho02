@@ -12,7 +12,7 @@ const vuetify = createVuetify({
   directives,
 })
 
-
+//
 
 // 3. Adicionar o Vuetify à instância do Vue
 const app = createApp(App)
