@@ -1,0 +1,45 @@
+### Get all cargos
+GET http://localhost:40000/getAllCargos HTTP/1.1
+
+### Get cargo by ID (precisa de token)
+POST http://localhost:40000/getCargoByID HTTP/1.1
+content-type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
+
+{
+    "cargoid": 1
+}
+
+### Insert cargo
+POST http://localhost:40000/insertCargo HTTP/1.1
+content-type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
+
+{
+    "codigo": "AUX",
+    "descricao": "Auxiliar Administrativo",
+    "salario_base": 2500.00,
+    "ativo": true
+}
+
+### Update cargo
+POST http://localhost:40000/updateCargo HTTP/1.1
+content-type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
+
+{
+    "cargoid": 5,
+    "codigo": "AUX",
+    "descricao": "Auxiliar Administrativo Sênior",
+    "salario_base": 2800.00,
+    "ativo": true
+}
+
+### Delete cargo
+POST http://localhost:40000/deleteCargo HTTP/1.1
+content-type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
+
+{
+    "cargoid": 5
+}
