@@ -1,0 +1,73 @@
+@host = http://localhost:40000
+@contentType = application/json
+
+### ================================================================
+###  LOGIN (necessário para gerar o token JWT)
+### ================================================================
+
+# @name loginAutenticado
+POST {{host}}/Login HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "admin"
+}
+
+@accessToken = {{loginAutenticado.response.body.token}}
+
+### ================================================================
+###  ROTAS DE CARGOS
+### ================================================================
+
+# Buscar todos os cargos 
+GET {{host}}/getAllCargos HTTP/1.1
+Content-Type: {{contentType}}
+
+# Buscar cargo por ID 
+POST {{host}}/getCargoByID HTTP/1.1
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+    "cargoid": 1
+}
+
+# Inserir novo cargo 
+# @name inserirCargo
+POST {{host}}/insertCargo HTTP/1.1
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+    "codigo": "DEV-JR",
+    "descricao": "Desenvolvedor Júnior",
+    "salario_base": 3500.00,
+    "ativo": true
+}
+
+# Atualizar cargo existente 
+POST {{host}}/updateCargo HTTP/1.1
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+    "cargoid": 1,
+    "codigo": "DEV PL",
+    "descricao": "Desenvolvedor Pleno (Atualizado)",
+    "salario_base": 6500.00,
+    "ativo": true
+}
+
+# Excluir cargo 
+POST {{host}}/deleteCargo HTTP/1.1
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+    "cargoid": 1
+}
+
+# Verificar se o cargo removido não aparece mais 
+GET {{host}}/getAllCargos HTTP/1.1
+Content-Type: {{contentType}}

@@ -116,7 +116,7 @@ const deleteFuncionario = async (funcionarioREGPar) => {
     return { msg, linhasAfetadas };
 };
 
-// Funções para o relacionamento N:N com Projetos
+// Funções para o relacionamento N:N com Projetos // Micheli 
 const getFuncionariosProjeto = async (projetoidPar) => {
     return (
         await db.query(
