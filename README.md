@@ -1,6 +1,6 @@
 # 🏢 Sistema de Gestão Empresarial (DW3)
 
-![Status do Projeto](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow?style=for-the-badge)
+![Status do Projeto](https://img.shields.io/badge/Status-Finalizado-green?style=for-the-badge)
 ![Licença](https://img.shields.io/badge/Licença-MIT-blue?style=for-the-badge)
 
 Uma aplicação Web **Full Stack** robusta desenvolvida para o gerenciamento corporativo de Funcionários, Cargos, Setores e Projetos. O sistema utiliza uma arquitetura separada com uma API RESTful no backend e uma interface moderna e responsiva no frontend.
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS funcionarios_projetos (
 -- Inserir Usuário Admin Padrão
 -- Senha é 'admin' (hash gerado pelo bcrypt)
 INSERT INTO usuarios (username, password) 
-VALUES ('admin', '$2a$10$BitC/g.tVdO.jX/bB3.sV.uQz.p.s.m.l.j.k.g.f.d.s.a');
+VALUES ('admin', '$2a$12$x0ZUpHqd0ifibgzaLmQCK.PI4FhobtexmAa65EJdRsFtf5clrGgei');
 ```
 </details>
 
@@ -188,8 +188,6 @@ VALUES ('admin', '$2a$10$BitC/g.tVdO.jX/bB3.sV.uQz.p.s.m.l.j.k.g.f.d.s.a');
 
 4.  Inicie o servidor:
     ```bash
-    npm run dev
-    # OU
     node app.js
     ```
     ✅ *O servidor rodará na porta **40000**.*
@@ -265,6 +263,7 @@ O backend fornece os seguintes endpoints REST (base: `http://localhost:40000`).
 
 ---
 <div align="center">
-  <sub>Desenvolvido para a disciplina de DW3.</sub>
+  <sub>Desenvolvido para a disciplina de Desenvolvimento Web 3.</sub> <br>
+  <sub>IFSP - Câmpus Votuporanga </sub>
 </div>
-```
+
