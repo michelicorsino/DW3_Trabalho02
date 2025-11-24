@@ -62,22 +62,22 @@
 <script setup>
 import { ref } from 'vue'
 import router from '@/router'
+import api from '@/services/api'
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false) 
 const isFormValid = ref(false)  
 const isLoading = ref(false)    
+const error = ref(false)    
 
 //validacao
 const emailRules = [
   value => !!value || 'O e-mail é obrigatório.',
-  value => /.+@.+\..+/.test(value) || 'Insira um e-mail válido.'
 ]
 
 const passwordRules = [
   value => !!value || 'A senha é obrigatória.',
-  value => value.length >= 6 || 'A senha deve ter no mínimo 6 caracteres.'
 ]
 
 
@@ -87,11 +87,41 @@ const handleLogin = async () => {
 
   isLoading.value = true
 
+  // setTimeout(() => {
+  //   isLoading.value = false
+  //   //alert(`Login realizado com sucesso!\nEmail: ${email.value}`)
+  //   router.push('/dashboard')
+  // }, 2000)
 
-  setTimeout(() => {
-    isLoading.value = false
-    //alert(`Login realizado com sucesso!\nEmail: ${email.value}`)
-    router.push('/dashboard')
-  }, 2000)
+    try {
+    const response = await api.post('/login', {
+      username: email.value,
+      password: password.value
+    });
+
+    if (response.data.auth) {
+      const tokenValue = response.data.token;
+      
+      // Salva o token no localStorage para usar em outras páginas
+      localStorage.setItem('token', tokenValue);
+      
+      // Salva dados para feedback (opcional)
+      loggedInUser.value = response.data.username;
+      token.value = tokenValue;
+
+      // Redireciona para a página principal após o login
+      router.push('/dashboard'); 
+    }
+
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.message) {
+      error.value = err.response.data.message;
+    } else {
+      error.value = 'Erro de rede. O backend está rodando?';
+    }
+  } finally {
+    isLoading.value = false;
+  }
+  console.log(error.value)
 }
 </script>
