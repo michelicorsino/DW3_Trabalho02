@@ -5,14 +5,14 @@
         <h1 class="text-h4 font-weight-bold text-primary">Projetos</h1>
       </v-col>
       <v-col cols="auto">
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">
+        <v-btn color="primary" prepend-icon="mdi-plus" size="large" @click="$router.push('/projetos/novo')">
           Novo Projeto
         </v-btn>
       </v-col>
     </v-row>
 
     <v-card elevation="2" class="rounded-lg">
-      <v-data-table :headers="headers" :items="items" :loading="loading">
+      <v-data-table :headers="headers" :items="projetos" :loading="loading" hover>
         
         <template v-slot:item.status="{ item }">
           <v-chip :color="getStatusColor(item.status)" size="small" variant="flat" class="font-weight-bold">
@@ -20,82 +20,61 @@
           </v-chip>
         </template>
 
+        <template v-slot:item.datainicio="{ item }">
+          {{ formatDateDisplay(item.datainicio) }}
+        </template>
+        <template v-slot:item.datafim="{ item }">
+          {{ formatDateDisplay(item.datafim) }}
+        </template>
+
         <template v-slot:item.orcamento="{ item }">
           {{ formatCurrency(item.orcamento) }}
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-btn icon="mdi-pencil" size="small" variant="text" color="blue" @click="openDialog(item)"></v-btn>
-          <v-btn icon="mdi-delete" size="small" variant="text" color="red" @click="deleteItem(item)"></v-btn>
+          <v-btn icon="mdi-pencil" size="small" variant="text" color="blue" class="mr-2"
+            @click="$router.push(`/projetos/editar/${item.projetoid}`)">
+          </v-btn>
+          <v-btn icon="mdi-delete" size="small" variant="text" color="red" @click="confirmDelete(item)"></v-btn>
         </template>
       </v-data-table>
     </v-card>
 
-    <v-dialog v-model="dialog" max-width="700px">
+    <v-dialog v-model="dialogDelete" max-width="500px">
       <v-card>
-        <v-card-title>
-          <span class="text-h5">{{ editedItem.projetoid ? 'Editar Projeto' : 'Novo Projeto' }}</span>
-        </v-card-title>
-
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="4">
-                <v-text-field v-model="editedItem.codigo" label="Código" variant="outlined" density="compact"></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="8">
-                <v-text-field v-model="editedItem.nome" label="Nome do Projeto" variant="outlined" density="compact"></v-text-field>
-              </v-col>
-              
-              <v-col cols="12" sm="6">
-                <v-text-field v-model="editedItem.datainicio" label="Início" type="date" variant="outlined" density="compact"></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field v-model="editedItem.datafim" label="Fim Previsto" type="date" variant="outlined" density="compact"></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="editedItem.status"
-                  :items="['Em Andamento', 'Concluído', 'Cancelado', 'Planejamento']"
-                  label="Status"
-                  variant="outlined"
-                  density="compact"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field 
-                  v-model="editedItem.orcamento" 
-                  label="Orçamento" 
-                  prefix="R$" 
-                  type="number" 
-                  variant="outlined"
-                  density="compact"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12">
-                <v-textarea v-model="editedItem.descricao" label="Descrição Detalhada" variant="outlined" rows="3"></v-textarea>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
+        <v-card-title class="text-h5">Excluir Projeto</v-card-title>
+        <v-card-text>Tem certeza que deseja remover o projeto <strong>{{ itemToDelete?.nome }}</strong>?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="closeDialog">Cancelar</v-btn>
-          <v-btn color="blue-darken-1" variant="text" @click="save">Salvar</v-btn>
+          <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancelar</v-btn>
+          <v-btn color="red-darken-1" variant="elevated" @click="deleteItemConfirm">Excluir</v-btn>
+          <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="3000">
+      {{ snackbarText }}
+      <template v-slot:actions>
+        <v-btn variant="text" @click="snackbar = false">Fechar</v-btn>
+      </template>
+    </v-snackbar>
+
   </v-container>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import api from '@/services/api'
 
-const dialog = ref(false)
 const loading = ref(false)
+const projetos = ref([])
+const dialogDelete = ref(false)
+const itemToDelete = ref(null)
+
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarColor = ref('success')
 
 const headers = [
   { title: 'Cód.', key: 'codigo' },
@@ -107,19 +86,6 @@ const headers = [
   { title: 'Ações', key: 'actions', sortable: false, align: 'end' },
 ]
 
-const items = ref([])
-const defaultItem = { 
-  projetoid: null, 
-  codigo: '', 
-  nome: '', 
-  descricao: '', 
-  datainicio: '', 
-  datafim: '', 
-  status: 'Planejamento', 
-  orcamento: 0 
-}
-const editedItem = reactive({ ...defaultItem })
-
 function getStatusColor(status) {
   if (status === 'Concluído') return 'green'
   if (status === 'Em Andamento') return 'blue'
@@ -128,38 +94,58 @@ function getStatusColor(status) {
 }
 
 function formatCurrency(val) {
+  if (!val) return 'R$ 0,00'
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
 }
 
-function openDialog(item = null) {
-  if (item) Object.assign(editedItem, item)
-  else Object.assign(editedItem, defaultItem)
-  dialog.value = true
+function formatDateDisplay(dataStr) {
+  if (!dataStr) return '-'
+  const date = new Date(dataStr)
+  return date.toLocaleDateString('pt-BR')
 }
 
-function closeDialog() {
-  dialog.value = false
-  setTimeout(() => Object.assign(editedItem, defaultItem), 300)
-}
-
-function save() {
-  if (editedItem.projetoid) {
-    const index = items.value.findIndex(i => i.projetoid === editedItem.projetoid)
-    if (index !== -1) Object.assign(items.value[index], editedItem)
-  } else {
-    items.value.push({ ...editedItem, projetoid: Date.now() })
+const fetchProjetos = async () => {
+  loading.value = true
+  try {
+    const response = await api.get('/getAllProjetos')
+    projetos.value = response.data.registro || []
+  } catch (error) {
+    showSnackbar('Erro ao carregar projetos.', 'error')
+  } finally {
+    loading.value = false
   }
-  closeDialog()
 }
 
-function deleteItem(item) {
-  if(confirm('Excluir projeto?')) items.value = items.value.filter(i => i.projetoid !== item.projetoid)
+const confirmDelete = (item) => {
+  itemToDelete.value = item
+  dialogDelete.value = true
+}
+
+const closeDelete = () => {
+  dialogDelete.value = false
+  itemToDelete.value = null
+}
+
+const deleteItemConfirm = async () => {
+  if (!itemToDelete.value) return
+  try {
+    await api.post('/deleteProjeto', { projetoid: itemToDelete.value.projetoid })
+    await fetchProjetos()
+    showSnackbar('Projeto removido com sucesso!', 'success')
+  } catch (error) {
+    showSnackbar('Erro ao remover projeto.', 'error')
+  } finally {
+    closeDelete()
+  }
+}
+
+const showSnackbar = (text, color) => {
+  snackbarText.value = text
+  snackbarColor.value = color
+  snackbar.value = true
 }
 
 onMounted(() => {
-  items.value = [
-    { projetoid: 1, codigo: 'PROJ01', nome: 'Site Institucional', datainicio: '2024-01-01', datafim: '2024-03-01', status: 'Em Andamento', orcamento: 15000 },
-    { projetoid: 2, codigo: 'PROJ02', nome: 'App Mobile', datainicio: '2024-02-01', datafim: '2024-08-01', status: 'Planejamento', orcamento: 50000 },
-  ]
+  fetchProjetos()
 })
 </script>
