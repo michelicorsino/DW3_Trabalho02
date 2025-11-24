@@ -4,8 +4,8 @@
     <template v-if="showLayout">
       <v-navigation-drawer v-model="drawer" elevation="2">
         <v-list-item
-          prepend-avatar="https://randomuser.me/api/portraits/men/85.jpg"
-          title="Samuel Cardoso"
+          prepend-avatar="https://placehold.co/300x300?text=Admin"
+          title="Administrador"
           subtitle="Admin"
           class="py-4"
         ></v-list-item>
@@ -85,8 +85,18 @@ const kpis = [
   { title: 'Setores', value: '4', icon: 'mdi-domain', color: 'purple-accent-3', trend: 'Departamentos' },
 ]
 
-function logout() {
-  // Lógica de logout aqui
-  router.push('/login')
+async function logout() {
+  try {
+    // Tenta avisar o backend (opcional, mas boa prática)
+    await api.post('/Logout')
+  } catch (error) {
+    console.error('Erro ao notificar logout:', error)
+  } finally {
+    // 2. O PASSO MAIS IMPORTANTE: Apagar o crachá!
+    localStorage.removeItem('token')
+    
+    // 3. Redirecionar para a rota raiz ('/') que é o seu Login
+    router.push('/')
+  }
 }
 </script>
