@@ -9,11 +9,22 @@
             <p class="text-subtitle-2 text-medium-emphasis">Faça login para continuar</p>
           </div>
 
+          <v-alert
+            v-if="error"
+            type="error"
+            variant="tonal"
+            class="mb-4"
+            closable
+            @click:close="error = ''"
+          >
+            {{ error }}
+          </v-alert>
+
           <v-form v-model="isFormValid" @submit.prevent="handleLogin">
             <v-text-field
               v-model="email"
-              label="E-mail"
-              prepend-inner-icon="mdi-email-outline"
+              label="Usuário" 
+              prepend-inner-icon="mdi-account"
               variant="outlined"
               color="primary"
               :rules="emailRules"
@@ -46,13 +57,6 @@
               Entrar
             </v-btn>
           </v-form>
-
-          <!-- <div class="text-center mt-4">
-            <a href="#" class="text-caption text-decoration-none text-primary">
-              Esqueceu sua senha?
-            </a>
-          </div> -->
-
         </v-card>
       </v-col>
     </v-row>
@@ -69,59 +73,53 @@ const password = ref('')
 const showPassword = ref(false) 
 const isFormValid = ref(false)  
 const isLoading = ref(false)    
-const error = ref(false)    
+const error = ref('') // Mudei para string vazia para facilitar
 
-//validacao
 const emailRules = [
-  value => !!value || 'O e-mail é obrigatório.',
+  value => !!value || 'O usuário é obrigatório.',
 ]
 
 const passwordRules = [
   value => !!value || 'A senha é obrigatória.',
 ]
 
-
 const handleLogin = async () => {
-
   if (!isFormValid.value) return
 
   isLoading.value = true
+  error.value = '' // Limpa erro anterior
 
-  // setTimeout(() => {
-  //   isLoading.value = false
-  //   //alert(`Login realizado com sucesso!\nEmail: ${email.value}`)
-  //   router.push('/dashboard')
-  // }, 2000)
-
-    try {
-    const response = await api.post('/login', {
+  try {
+    // Ajustei para /Login (Maiúsculo) igual ao seu router.js
+    const response = await api.post('/Login', {
       username: email.value,
       password: password.value
     });
 
+    // O backend retorna auth: true se deu certo
     if (response.data.auth) {
       const tokenValue = response.data.token;
       
-      // Salva o token no localStorage para usar em outras páginas
       localStorage.setItem('token', tokenValue);
       
-      // Salva dados para feedback (opcional)
-      loggedInUser.value = response.data.username;
-      token.value = tokenValue;
+      // REMOVIDO: loggedInUser e token (causavam erro pois não existiam)
 
-      // Redireciona para a página principal após o login
+      // Redireciona
       router.push('/dashboard'); 
+    } else {
+      // Se auth for false (ex: senha errada), mostra a mensagem do backend
+      error.value = response.data.message || 'Login inválido';
     }
 
   } catch (err) {
+    console.error(err);
     if (err.response && err.response.data && err.response.data.message) {
       error.value = err.response.data.message;
     } else {
-      error.value = 'Erro de rede. O backend está rodando?';
+      error.value = 'Erro ao conectar. O backend está rodando na porta 40000?';
     }
   } finally {
     isLoading.value = false;
   }
-  console.log(error.value)
 }
 </script>

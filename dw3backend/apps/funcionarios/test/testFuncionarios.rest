@@ -1,0 +1,60 @@
+### 1. Login (Para pegar o Token)
+# Faça essa requisição primeiro, copie o "token" da resposta 
+# e substitua onde está escrito SEU_TOKEN_AQUI nos próximos testes.
+POST http://localhost:40000/Login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "admin",
+    "password": "admin"
+}
+
+### 2. Listar Todos os Funcionários (Get All)
+# Essa rota é pública no seu router.js, não precisa de token
+GET http://localhost:40000/getAllFuncionarios HTTP/1.1
+content-type: application/json
+
+
+### 3. Inserir Funcionário (Insert)
+POST http://localhost:40000/insertFuncionario HTTP/1.1
+content-type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzYzOTgxOTUxLCJleHAiOjE3NjM5ODI1NTF9.Elxy79US-yIbhZW8cS6WOo6iqfp2rBApdeXtaAzjwSc
+
+{
+    "matricula": "TESTE123",
+    "nome": "Teste via REST",
+    "cpf": "999.999.999-99",
+    "email": "teste@empresa.com",
+    "telefone": "(11) 99999-9999",
+    "datanascimento": "1995-05-20",
+    "dataadmissao": "2024-01-01",
+    "salario": 4500.00,
+    "cargoid": 1,
+    "setorid": 1
+}
+
+### 4. Buscar Funcionário por ID (Get by ID)
+POST http://localhost:40000/getFuncionarioByID HTTP/1.1
+content-type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
+
+{
+    "funcionarioid": 1
+}
+
+### 5. Atualizar Funcionário (Update)
+# Lembre-se de colocar um ID que exista no banco
+POST http://localhost:40000/updateFuncionario HTTP/1.1
+content-type: application/json
+Authorization: Bearer SEU_TOKEN_AQUI
+
+{
+    "funcionarioid": 1,
+    "matricula": "TESTE123_UPD",
+    "nome": "Teste Atualizado",
+    "cpf": "999.999.999-99",
+    "email": "teste_atualizado@empresa.com",
+    "telefone": "(11) 88888-8888",
+    "datanascimento": "1995-05-20",
+    "dataadmissao": "2024-01-01",
+    "salario": 5500.00,
